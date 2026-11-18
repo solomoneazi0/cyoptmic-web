@@ -1,0 +1,902 @@
+@import "tailwindcss";
+
+@theme {
+  /* Night sky: "paper" is the background, "ink" the text. Cyoptmic's orange stays the one accent. */
+  --color-paper: #09090c;
+  --color-paper-2: #15151b;
+  --color-ink: #f2eee9;
+  --color-ink-2: #aea79f;
+  --color-steel: #85807a;
+  --color-line: rgb(242 238 233 / 0.1);
+  --color-ember: #ee5c30;
+  --color-ember-deep: #c2441e;
+  --color-gold: #efc353;
+
+  --font-display: var(--nf-display), system-ui, sans-serif;
+  --font-sans: var(--nf-text), system-ui, sans-serif;
+  --font-mono: var(--nf-mono), ui-monospace, monospace;
+  --font-hand: var(--nf-hand), cursive;
+
+  --ease-lens: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+:root {
+  --shell: clamp(1.25rem, 5vw, 5rem);
+  --nav-h: 4.5rem;
+  --lens-r: 128px;
+}
+@media (max-width: 767px) {
+  :root {
+    --lens-r: 92px;
+    --nav-h: 4rem;
+  }
+}
+
+@layer base {
+  html {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    color-scheme: dark;
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    overflow-x: clip;
+  }
+  ::selection {
+    background: var(--color-ember);
+    color: #fff;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-ember);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+}
+
+@layer components {
+/* ---------- Layout helpers ---------- */
+.shell {
+  padding-inline: var(--shell);
+}
+.measure {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  color: var(--color-steel);
+  font-variant-numeric: tabular-nums;
+}
+.display-1 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(3rem, 8.2vw, 9.25rem);
+  line-height: 0.9;
+  letter-spacing: -0.055em;
+}
+.display-2 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(2.25rem, 5vw, 4.75rem);
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+}
+.display-3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.75rem, 2.8vw, 2.6rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+.lead {
+  font-size: clamp(1.1rem, 1.45vw, 1.45rem);
+  line-height: 1.45;
+  color: var(--color-ink-2);
+  letter-spacing: -0.005em;
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.9rem;
+  height: 3.25rem;
+  padding: 0 0.4rem 0 1.5rem;
+  border-radius: 999px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  transition: transform 0.4s var(--ease-lens), background 0.3s;
+}
+.btn:hover {
+  transform: translateY(-2px);
+}
+.btn-dot {
+  display: grid;
+  place-items: center;
+  width: 2.45rem;
+  height: 2.45rem;
+  border-radius: 999px;
+  transition: transform 0.45s var(--ease-lens);
+}
+.btn:hover .btn-dot {
+  transform: rotate(45deg);
+}
+.btn-primary {
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+.btn-primary .btn-dot {
+  background: var(--color-ember);
+  color: #fff;
+}
+.btn-secondary {
+  border: 1px solid var(--color-line);
+  color: var(--color-ink);
+}
+.btn-secondary .btn-dot {
+  background: var(--color-paper-2);
+}
+.btn-secondary:hover {
+  border-color: rgb(242 238 233 / 0.3);
+}
+}
+
+/* Product mock-ups (screens of the apps we build) stay light, like real screens. */
+.light {
+  --color-paper: #f4f2ef;
+  --color-paper-2: #e9e5e0;
+  --color-ink: #190a05;
+  --color-ink-2: #51463f;
+  --color-steel: #7d736c;
+  --color-line: rgb(25 10 5 / 0.12);
+  color: var(--color-ink);
+}
+
+.hand {
+  font-family: var(--font-hand);
+  font-weight: 700;
+  line-height: 0.95;
+  white-space: nowrap;
+}
+
+/* ---------- Decoding text ---------- */
+.dc {
+  position: relative;
+}
+.decode-armed .dc {
+  color: transparent;
+}
+.decode-armed .dc.on {
+  color: inherit;
+}
+.dc[data-g]::after {
+  content: attr(data-g);
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--color-ember);
+}
+
+/* ---------- Value cards: an orange fill grows from the pointer ---------- */
+.value-fill {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at var(--fx, 50%) var(--fy, 100%), #ff7d4d, var(--color-ember) 55%, #d9481f);
+  clip-path: circle(0 at var(--fx, 50%) var(--fy, 100%));
+  transition: clip-path 0.75s var(--ease-lens);
+}
+.value-card:hover .value-fill {
+  clip-path: circle(150% at var(--fx, 50%) var(--fy, 100%));
+}
+.value-card :is(h3, .value-num, .value-body) {
+  transition: color 0.45s var(--ease-lens);
+}
+.value-card:hover :is(h3, .value-num) {
+  color: #1a0904;
+}
+.value-card:hover .value-body {
+  color: rgb(26 9 4 / 0.78);
+}
+.value-arrow {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  background: #1a0904;
+  color: var(--color-ember);
+  opacity: 0;
+  transform: scale(0.4) rotate(-45deg);
+  transition: opacity 0.4s, transform 0.6s var(--ease-lens);
+}
+.value-card:hover .value-arrow {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+}
+
+/* ---------- Service folders: the brief slides out and the flap tips open ---------- */
+.folder {
+  position: relative;
+  display: block;
+  height: 21rem;
+  perspective: 1100px;
+  isolation: isolate;
+  border-radius: 20px;
+}
+.folder-tab {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 52%;
+  height: 2.6rem;
+  padding: 0 1.4rem;
+  border-radius: 16px 16px 0 0;
+  background: #16161c;
+  clip-path: polygon(0 0, 84% 0, 100% 100%, 0 100%);
+  font: 500 11px/1 var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-steel);
+  transition: background 0.5s;
+}
+.folder-back {
+  position: absolute;
+  inset: 2.5rem 0 0 0;
+  border-radius: 0 20px 20px 20px;
+  background: #16161c;
+  transition: background 0.5s;
+}
+.folder-sheet {
+  position: absolute;
+  top: 3.7rem;
+  left: 5%;
+  right: 5%;
+  z-index: 1;
+  display: block;
+  height: 62%;
+  padding: 0.95rem 1.05rem;
+  border-radius: 12px;
+  background: #f2eee9;
+  box-shadow: 0 -8px 24px rgb(0 0 0 / 0.3);
+  transition: transform 0.75s var(--ease-lens);
+}
+.folder-front {
+  position: absolute;
+  inset: 6.3rem 0 0 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 1.5rem 1.6rem 1.7rem;
+  border-radius: 20px;
+  border: 1px solid rgb(255 255 255 / 0.07);
+  background: linear-gradient(180deg, #212129, #18181e);
+  color: var(--color-ink);
+  transform-origin: 50% 100%;
+  transition:
+    transform 0.75s var(--ease-lens),
+    background 0.5s,
+    color 0.4s,
+    border-color 0.5s;
+}
+.folder-body {
+  transition: color 0.4s;
+}
+.folder-state::after {
+  content: "Open ↗";
+}
+.folder:is(:hover, :focus-visible) .folder-state::after {
+  content: "Opened";
+}
+.folder-arrow {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  background: var(--color-paper-2);
+  color: var(--color-ink);
+  transition:
+    transform 0.6s var(--ease-lens),
+    background 0.4s,
+    color 0.4s;
+}
+.folder:is(:hover, :focus-visible) :is(.folder-tab, .folder-back) {
+  background: #1d1d24;
+}
+.folder:is(:hover, :focus-visible) .folder-sheet {
+  transform: translateY(-3.1rem) rotate(-1.5deg);
+}
+.folder:is(:hover, :focus-visible) .folder-front {
+  transform: rotateX(-32deg);
+  border-color: transparent;
+  background: linear-gradient(180deg, #ff7d4d, var(--color-ember) 55%, #d9481f);
+  color: #1a0904;
+}
+.folder:is(:hover, :focus-visible) .folder-body {
+  color: rgb(26 9 4 / 0.78);
+}
+.folder:is(:hover, :focus-visible) .folder-arrow {
+  background: #1a0904;
+  color: var(--color-ember);
+  transform: rotate(45deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .value-fill,
+  .folder-sheet,
+  .folder-front {
+    transition-duration: 0.01s;
+  }
+}
+
+/* ---------- Hero sky ---------- */
+.hero-title {
+  font-size: clamp(3rem, 7.4vw, 8.4rem);
+  line-height: 0.9;
+  letter-spacing: -0.055em;
+}
+.hero::after {
+  /* Melt the bottom of the sky into the page */
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 7rem;
+  z-index: 6;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent, var(--color-paper));
+}
+.sky {
+  position: absolute;
+  inset: 0;
+}
+.sky-stars,
+.sky-orbits {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.sky-orbits {
+  z-index: 1;
+  overflow: visible;
+}
+.sky-orbits ellipse {
+  fill: none;
+  stroke: rgb(255 255 255 / 0.07);
+  stroke-width: 1;
+  stroke-dasharray: 2 7;
+}
+.sky-sun {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle at 42% 40%, #fffaf0, #ffdca0 24%, #f6a24a 50%, #ee5c30 78%, #b23a17);
+  box-shadow:
+    0 0 24px 4px rgb(255 170 90 / 0.55),
+    0 0 90px 24px rgb(238 92 48 / 0.25);
+}
+.sky-sun::after {
+  content: "";
+  position: absolute;
+  inset: -320%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(240 120 60 / 0.16), rgb(240 120 60 / 0.05) 45%, transparent);
+  animation: corona 5s ease-in-out infinite alternate;
+}
+@keyframes corona {
+  to {
+    transform: scale(1.12);
+    opacity: 0.7;
+  }
+}
+.sky-dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  pointer-events: none;
+  will-change: transform;
+}
+.sky-dot-core {
+  position: absolute;
+  left: -2.5px;
+  top: -2.5px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 6px 2px var(--glow);
+  transition: background 0.6s;
+}
+.sky-dot.found .sky-dot-core {
+  background: var(--tint);
+}
+.sky-dot-label {
+  position: absolute;
+  left: 10px;
+  top: -7px;
+  font: 500 10px/1 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: rgb(242 238 233 / 0.55);
+  opacity: 0;
+  transition: opacity 0.6s;
+}
+.sky-dot.found .sky-dot-label {
+  opacity: 1;
+}
+.astro-box {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.2s var(--ease-lens);
+}
+.astro-box.ready {
+  opacity: 1;
+}
+.sightline {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 7;
+  width: 100px;
+  height: 1px;
+  transform-origin: 0 50%;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgb(238 92 48 / 0.65), rgb(238 92 48 / 0.05));
+  opacity: 0;
+  transition: opacity 1s;
+  will-change: transform;
+}
+.sightline.ready {
+  opacity: 1;
+}
+
+/* Falling asteroids: a tumbling rock with a burning tail behind it */
+.ast {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 4;
+  pointer-events: none;
+  opacity: 0;
+  will-change: transform;
+}
+.ast.on {
+  opacity: 1;
+}
+.ast-trail {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: var(--len);
+  height: calc(var(--s) * 0.8);
+  transform: translateY(-50%);
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, rgb(238 92 48 / 0.25) 30%, rgb(255 140 70 / 0.75) 72%, rgb(255 236 210) 100%);
+  box-shadow: 0 0 10px rgb(238 92 48 / 0.35);
+}
+.ast.big .ast-trail {
+  height: calc(var(--s) * 0.75);
+  background: linear-gradient(90deg, transparent, rgb(238 92 48 / 0.2) 25%, rgb(255 120 60 / 0.7) 70%, rgb(255 215 170) 100%);
+}
+.ast-rock {
+  position: absolute;
+  top: calc(var(--s) / -2);
+  left: calc(var(--s) / -2);
+  width: var(--s);
+  height: var(--s);
+  border-radius: 46% 54% 40% 60% / 55% 42% 58% 45%;
+  background: radial-gradient(circle at 34% 32%, #fff4ea, #c9b8a8 40%, #7a6c61 70%, #3a332e);
+  box-shadow:
+    0 0 calc(var(--s) * 0.8) calc(var(--s) * 0.25) rgb(255 190 130 / 0.85),
+    0 0 calc(var(--s) * 2.2) calc(var(--s) * 0.6) rgb(238 92 48 / 0.45);
+  animation: tumble 1.4s linear infinite;
+}
+.ast.big .ast-rock {
+  background:
+    radial-gradient(circle at 62% 60%, rgb(0 0 0 / 0.4) 0 13%, transparent 15%),
+    radial-gradient(circle at 30% 70%, rgb(0 0 0 / 0.3) 0 9%, transparent 11%),
+    radial-gradient(circle at 34% 32%, #f3e7dc, #a99786 50%, #4a413a);
+  animation-duration: 2.6s;
+}
+.lens-view .ast {
+  z-index: 4;
+}
+@keyframes tumble {
+  to {
+    rotate: 360deg;
+  }
+}
+
+/* The telescope view */
+.lens {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 20;
+  width: calc(var(--lens-r) * 2);
+  height: calc(var(--lens-r) * 2);
+  border-radius: 50%;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  will-change: transform;
+}
+html.lens-held,
+html.lens-held * {
+  cursor: grabbing !important;
+}
+.lens::before {
+  /* The eyepiece barrel around the view */
+  content: "";
+  position: absolute;
+  inset: calc(var(--lens-r) * -0.11);
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    transparent calc(100% - var(--lens-r) * 0.11 - 1px),
+    #3c3c46 calc(100% - var(--lens-r) * 0.11),
+    #16161c calc(100% - var(--lens-r) * 0.06),
+    #2e2e37 calc(100% - 2px),
+    #50505b 100%
+  );
+  box-shadow:
+    0 18px 50px rgb(0 0 0 / 0.65),
+    0 0 0 1px rgb(255 255 255 / 0.05);
+}
+.lens-view {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%, #0c0c16, #030306 72%);
+  contain: strict;
+}
+.lens-stars {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.lens-sun {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  border-radius: 50%;
+  will-change: transform;
+  background:
+    radial-gradient(circle at 30% 34%, rgb(255 255 255 / 0.5) 0 2%, transparent 3%),
+    radial-gradient(circle at 62% 58%, rgb(178 58 23 / 0.35) 0 4%, transparent 5%),
+    radial-gradient(circle at 42% 40%, #fffaf0, #ffd38a 26%, #f39a45 52%, #e8562d 80%, #a3330f);
+  box-shadow:
+    0 0 40px 10px rgb(255 170 90 / 0.6),
+    0 0 140px 50px rgb(238 92 48 / 0.3);
+}
+.lp {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  will-change: transform;
+}
+.lp-body {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 45%, var(--base), var(--dark) 120%);
+  box-shadow: 0 0 calc(var(--s) * 0.45) var(--glow);
+}
+.lp-surface {
+  position: absolute;
+  inset: 0;
+}
+.lp-surface.gas {
+  inset: -10%;
+  opacity: 0.55;
+  background: repeating-linear-gradient(
+    168deg,
+    transparent 0 7%,
+    color-mix(in srgb, var(--light) 70%, transparent) 7% 9.5%,
+    transparent 9.5% 15%,
+    color-mix(in srgb, var(--dark) 70%, transparent) 15% 19%
+  );
+}
+.lp-surface.clouds {
+  background:
+    radial-gradient(ellipse 42% 13% at 32% 28%, rgb(255 255 255 / 0.75), transparent 70%),
+    radial-gradient(ellipse 34% 11% at 66% 56%, rgb(255 255 255 / 0.6), transparent 70%),
+    radial-gradient(ellipse 30% 10% at 38% 78%, rgb(255 255 255 / 0.5), transparent 70%),
+    radial-gradient(circle at 70% 32%, color-mix(in srgb, var(--dark) 80%, transparent) 0 15%, transparent 16%),
+    radial-gradient(circle at 28% 60%, color-mix(in srgb, var(--dark) 60%, transparent) 0 12%, transparent 13%);
+}
+.lp-surface.rock {
+  background:
+    radial-gradient(circle at 30% 34%, rgb(0 0 0 / 0.32) 0 9%, rgb(255 255 255 / 0.12) 10% 11%, transparent 12%),
+    radial-gradient(circle at 62% 64%, rgb(0 0 0 / 0.28) 0 13%, rgb(255 255 255 / 0.1) 14% 15%, transparent 16%),
+    radial-gradient(circle at 72% 26%, rgb(0 0 0 / 0.25) 0 6%, transparent 7%),
+    radial-gradient(circle at 36% 74%, rgb(0 0 0 / 0.2) 0 5%, transparent 6%);
+}
+.lp-shade {
+  /* Lit side faces the sun: rotated every frame */
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 26% 50%, rgb(255 255 255 / 0.3), transparent 32%, transparent 46%, rgb(0 0 0 / 0.62) 76%, rgb(0 0 0 / 0.9));
+}
+.lp-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 230%;
+  height: 52%;
+  border-radius: 50%;
+  border: calc(var(--s) * 0.075) solid var(--ring);
+  opacity: 0.8;
+  transform: translate(-50%, -50%) rotate(-16deg);
+}
+.lp-ring.back {
+  clip-path: inset(0 0 50% 0);
+}
+.lp-ring.front {
+  z-index: 2;
+  clip-path: inset(50% 0 0 0);
+}
+.lp-name {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 50%;
+  z-index: 3;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font: 500 10px/1 var(--font-mono);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #fff;
+  background: rgb(5 5 8 / 0.7);
+  border: 1px solid rgb(255 255 255 / 0.14);
+  border-radius: 999px;
+  padding: 4px 8px;
+}
+.lens-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  border-radius: 50%;
+  pointer-events: none;
+  box-shadow:
+    inset 0 0 36px 10px rgb(0 0 0 / 0.85),
+    inset 0 0 0 1px rgb(255 255 255 / 0.12);
+  background: radial-gradient(circle at 30% 22%, rgb(255 255 255 / 0.07), transparent 38%);
+}
+.lens-hint {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  font: 500 10px/1.2 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgb(242 238 233 / 0.7);
+  transition: opacity 0.5s;
+}
+.lens-hint .hand {
+  letter-spacing: 0;
+  text-transform: none;
+  font-size: 19px;
+  white-space: normal;
+  line-height: 1.05;
+  padding-inline: 18%;
+}
+@media (max-width: 767px) {
+  .lens-hint .hand {
+    font-size: 15px;
+  }
+  .lens-zoom {
+    display: none;
+  }
+}
+.lens-hint.gone {
+  opacity: 0;
+}
+.lens-reticle {
+  position: absolute;
+  inset: calc(var(--lens-r) * -0.11);
+  z-index: 6;
+  width: calc(100% + var(--lens-r) * 0.22);
+  height: calc(100% + var(--lens-r) * 0.22);
+  pointer-events: none;
+}
+.lens-zoom,
+.lens-readout {
+  position: absolute;
+  font: 500 10px/1 var(--font-mono);
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  pointer-events: none;
+  color: var(--color-steel);
+}
+.lens-zoom {
+  top: 4%;
+  right: -6%;
+  color: var(--color-ember);
+}
+.lens-readout {
+  top: calc(100% + var(--lens-r) * 0.11 + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  font-variant-numeric: tabular-nums;
+}
+.hud {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 21;
+  width: min(290px, 80vw);
+  padding: 18px 18px 16px;
+  border-radius: 16px;
+  border: 1px solid var(--color-line);
+  background: rgb(16 16 22 / 0.94);
+  box-shadow: 0 20px 50px rgb(0 0 0 / 0.5);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s var(--ease-lens);
+  will-change: transform;
+}
+.hud.on {
+  opacity: 1;
+  pointer-events: auto;
+}
+.sky-pill {
+  position: absolute;
+  right: 3.5vw;
+  bottom: 2.2vh;
+  z-index: 11;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-line);
+  background: rgb(16 16 22 / 0.8);
+  padding: 0.5rem 0.9rem;
+  font: 400 12px/1 var(--font-mono);
+  color: var(--color-ink);
+  transition: border-color 0.3s;
+}
+.sky-pill:hover {
+  border-color: rgb(238 92 48 / 0.6);
+}
+@media (max-width: 767px) {
+  .sky-pill {
+    bottom: auto;
+    top: calc(var(--nav-h) + 0.5rem);
+    right: 1rem;
+  }
+}
+html.menu-open :is(.lens, .hud, .sky-pill) {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ---------- Rulers ---------- */
+.ruler-ticks {
+  background-image:
+    linear-gradient(to bottom, var(--color-steel) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(125 115 108 / 0.55) 1px, transparent 1px);
+  background-size:
+    100% 64px,
+    35% 8px;
+  background-repeat: repeat-y;
+  background-position: 0 0, 0 0;
+}
+
+/* ---------- X-ray mode: show the design decisions ---------- */
+html.xray [data-x] {
+  outline: 1px dashed var(--color-ember);
+  outline-offset: 6px;
+  position: relative;
+}
+html.xray [data-x]::before {
+  content: attr(data-x);
+  position: absolute;
+  z-index: 20;
+  left: -6px;
+  top: -1.9rem;
+  font: 500 10px/1 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--color-ember);
+  color: #fff;
+  padding: 4px 6px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+html.xray [data-x][data-note]::after {
+  content: attr(data-note);
+  position: absolute;
+  z-index: 20;
+  left: -6px;
+  top: calc(100% + 12px);
+  max-width: 28ch;
+  font: 400 12px/1.35 var(--font-mono);
+  letter-spacing: 0;
+  text-transform: none;
+  background: var(--color-ink);
+  color: var(--color-paper);
+  padding: 8px 10px;
+  border-radius: 6px;
+  white-space: normal;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.2s, transform 0.2s;
+  pointer-events: none;
+}
+html.xray [data-x]:hover::after {
+  opacity: 1;
+  transform: none;
+}
+.xray-grid {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s var(--ease-lens);
+}
+html.xray .xray-grid {
+  opacity: 1;
+}
+
+/* Lenis */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+@keyframes pulse-dot {
+  0% { box-shadow: 0 0 0 0 rgb(238 92 48 / 0.5); }
+  70%, 100% { box-shadow: 0 0 0 10px rgb(238 92 48 / 0); }
+}
+.pulse-dot {
+  animation: pulse-dot 2s var(--ease-lens) infinite;
+}
+@keyframes live-dot {
+  0% { box-shadow: 0 0 0 0 rgb(34 197 94 / 0.55); }
+  70%, 100% { box-shadow: 0 0 0 8px rgb(34 197 94 / 0); }
+}
+.live-dot {
+  animation: live-dot 1.8s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse-dot,
+  .live-dot,
+  .sky-sun::after,
+  .ast-rock {
+    animation: none;
+  }
+}
